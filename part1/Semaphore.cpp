@@ -11,7 +11,7 @@ Semaphore::Semaphore() : semaphorMax(0), counter(0){
 
 Semaphore::Semaphore(unsigned val) : semaphorMax(val), counter(val){
     pthread_cond_init(&cond, nullptr);
-    pthread_mutex_init(&mutex, nullptr);
+    pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
 }
 
 Semaphore::~Semaphore() {
