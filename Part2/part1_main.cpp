@@ -49,7 +49,8 @@ int main()
 
 	Board* b=new Board("./tiny.txt",1);
 	b->printboard();
-	int tmp=b->live_neighbors(0,0);
+	int tmp=b->live_neighbors(0,7);
 	cout << tmp;
+    delete b;
 	return 0; 
 } 
