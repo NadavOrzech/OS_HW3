@@ -1,5 +1,5 @@
 #include "Headers.hpp"
-
+#include "utils.hpp"
 #define LIVE_CELL 1
 #define DEAD_CELL 0
 #define BIRTH 3
@@ -10,14 +10,16 @@
 
 class Board{
 private:
-    vector<string> current;
-    vector<string> next;
+    vector<vector<int>*>* current;
+    vector<vector<int>*>* next;
 
     int tiles_num;
-    int [] tiles_start_delimiters;                          //index i holds the start line of tile i
+    int* tiles_start_delimiters;   //index i holds the start line of tile i
+    int width;
+    int height;
 
 public:
-    Board(vector<string> input_board, int tile_num);
+    Board(const string& s, int tile_num);
     ~Board();
 
     int get_start_line(int tile_num);
@@ -30,6 +32,7 @@ public:
 
     void tile_step(int tile_num);
     void make_step();
+    void printboard();
 };
 
 
