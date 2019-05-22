@@ -2,7 +2,7 @@
 #include "utils.hpp"
 #define LIVE_CELL 1
 #define DEAD_CELL 0
-#define BIRTH 3
+
 
 
 #ifndef PART1_BOARD_H
@@ -33,6 +33,8 @@ public:
     void tile_step(int tile_num);
     void make_step();
     void printboard();
+
+    void swap_boards();
 };
 
 

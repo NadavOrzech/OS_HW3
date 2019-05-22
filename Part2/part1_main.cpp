@@ -49,8 +49,11 @@ int main()
 
 	Board* b=new Board("./tiny.txt",1);
 	b->printboard();
-	int tmp=b->live_neighbors(0,7);
-	cout << tmp;
+    b->make_step();
+    cout << "----------------switch boards---------------\n";
+    b->printboard();
+//	int tmp=b->live_neighbors(0,7);
+//	cout << tmp;
     delete b;
 	return 0; 
 } 
