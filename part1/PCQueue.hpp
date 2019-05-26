@@ -9,13 +9,10 @@
 template <typename T>class PCQueue
 {
 private:
-	pthread_mutex_t	mutex;
-	Semaphore sem_tasks;
+	pthread_mutex_t	c,p;
+	Semaphore size, consumer, resource;
+	int c_count,p_count;
 	std::queue<T> queue;
-
-    pthread_cond_t producer_lock;           //producer gets priority before consumer
-    int number_of_producers;
-
 
 public:
 	PCQueue();
