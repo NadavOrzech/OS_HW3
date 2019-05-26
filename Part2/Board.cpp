@@ -5,22 +5,22 @@
 #include "Board.hpp"
 
 Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
-    this->current= new vector<vector<int>*>;
-    this->next= new vector<vector<int>*>;
+    this->current= new bool_mat;
+    this->next= new bool_mat;
     vector<string> lines=utils::read_lines(s);          //maybe need copy constructor
     this->height=lines.size();
     vector<string> tmp;
 
     for (int i = 0; i < this->height ; i++) {
         tmp=utils::split(lines.at(i), ' ');
-        vector<int>* int_row= new vector<int>;
-        vector<int>* int_row_next= new vector<int>;
+        vector<bool> bool_row;
+        vector<bool> bool_row_next;
         for (int j = 0; j <(int)tmp.size() ; j++) {
-            int_row->push_back(std::stoi(tmp.at(j)));
-            int_row_next->push_back(std::stoi(tmp.at(j)));
+            bool_row.push_back(std::stoi(tmp.at(j)));
+            bool_row_next.push_back(std::stoi(tmp.at(j)));
         }
-        current->push_back(int_row);
-        next->push_back(int_row_next);
+        current->push_back(bool_row);
+        next->push_back(bool_row_next);
 
     }
 
@@ -34,10 +34,6 @@ Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
 }
 
 Board::~Board() {
-    for (int i = 0; i < this->height; ++i) {
-        delete this->current->at(i);
-        delete this->next->at(i);
-    }
     delete this->current;
     delete this->next;
     delete[] this->tiles_start_delimiters;
@@ -63,7 +59,7 @@ int Board::live_neighbors(int row, int col){
                 continue;
 
             if(i>=0 && i<this->height && j>=0 && j<this->width)
-                if(current->at(i)->at(j)==LIVE_CELL)                //checks if the cell is alive
+                if(current->at(i).at(j)==LIVE_CELL)                //checks if the cell is alive
                     count++;
         }
     }
@@ -82,14 +78,14 @@ void Board::tile_step(int tile_num) {
         for (int j = 0; j < this->width; ++j) {
             live_neighbors=this->live_neighbors(i,j);
 
-            if(current->at(i)->at(j)==DEAD_CELL && live_neighbors==3)
-                next->at(i)->at(j)=LIVE_CELL;
+            if(current->at(i).at(j)==DEAD_CELL && live_neighbors==3)
+                next->at(i).at(j)=LIVE_CELL;
 
-            else if(current->at(i)->at(j)==LIVE_CELL && live_neighbors>3 && live_neighbors<2)
-                next->at(i)->at(j)=DEAD_CELL;
+            else if(current->at(i).at(j)==LIVE_CELL && live_neighbors>3 && live_neighbors<2)
+                next->at(i).at(j)=DEAD_CELL;
 
             else
-                next->at(i)->at(j)=current->at(i)->at(j);
+                next->at(i).at(j)=current->at(i).at(j);
         }
     }
 }
@@ -102,7 +98,7 @@ void Board::make_step(){
 }
 
 void Board::swap_boards(){
-    vector<vector<int>*>* tmp;
+    bool_mat* tmp;
     tmp=current;
     current=next;
     next=tmp;
@@ -112,7 +108,7 @@ void Board::printboard(){
 
     for (int i = 0; i <this->height ; i++) {
         for (int j = 0; j <this->width ; j++) {
-            cout <<current->at(i)->at(j);
+            cout <<current->at(i).at(j);
         }
         cout << "\n";
     }

@@ -10,8 +10,8 @@
 
 class Board{
 private:
-    vector<vector<int>*>* current;
-    vector<vector<int>*>* next;
+    bool_mat* current;
+    bool_mat* next;
 
     int tiles_num;
     int* tiles_start_delimiters;   //index i holds the start line of tile i
