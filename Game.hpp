@@ -1,6 +1,9 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
 #include "Headers.hpp"
+#include "Thread.hpp"
+#include "Board.hpp"
+#include "PCQueue.hpp"
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
 --------------------------------------------------------------------------------*/
@@ -23,7 +26,7 @@ struct tile_record {
 class Game {
 public:
 
-	Game(game_params);
+	Game(game_params params);
 	~Game();
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram  
@@ -48,8 +51,13 @@ protected: // All members here are protected, instead of private for testing pur
 
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
-	
-	// TODO: Add in your variables and synchronization primitives  
+
+	Board *game_board;                  //The board of the game
+    PCQueue<int> *tiles_q;              //Queue of tiles numbers, each tile is calculated as n separate task
+
+
+
+	// TODO: Add in your variables and synchronization primitives
 
 };
 #endif

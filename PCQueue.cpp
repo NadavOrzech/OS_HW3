@@ -1,19 +1,19 @@
 #include "PCQueue.hpp"
 
 
-template <class T> // Add definition in PCQueue.hpp if you need this constructor
-PCQueue<T>::PCQueue(){
-    queue=new std::queue<T>();
-    pthread_mutex_init(&cond_mutex, nullptr);        // NEED TO CHECK what attribute to add
-    pthread_mutex_init(&mutex, nullptr);
-
-    this->size=new Semaphore();
-    this->consumer=new Semaphore();
-    this->resource=new Semaphore();
-
-    this->c_count=0;
-    this->p_count=0;
-}
+//template <class T> // Add definition in PCQueue.hpp if you need this constructor
+//PCQueue<T>::PCQueue(){
+//    queue=new std::queue<T>();
+//    pthread_mutex_init(&cond_mutex, nullptr);        // NEED TO CHECK what attribute to add
+//    pthread_mutex_init(&mutex, nullptr);
+//
+//    this->size=new Semaphore();
+//    this->consumer=new Semaphore();
+//    this->resource=new Semaphore();
+//
+//    this->c_count=0;
+//    this->p_count=0;
+//}
 
 template <class T>
 PCQueue<T>::~PCQueue() {

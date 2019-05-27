@@ -1,14 +1,20 @@
 #include "Game.hpp"
+
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
-Game::Game(game_params* params){
-    this->m_gen_num=params->n_gen;
-    this->m_thread_num=params->n_thread;
-    // what to do with filename??
-    this->interactive_on=params->interactive_on;
-    this->print_on=params->print_on;
+Game::Game(game_params params){
+    this->m_gen_num=params.n_gen;
+    this->m_thread_num=params.n_thread;
+    this->interactive_on=params.interactive_on;
+    this->print_on=params.print_on;
+
+	this->game_board = new Board(params.filename, this->m_thread_num);
+	this->tiles_q=new PCQueue<int>();
+
+	//TODO: need to initial 'm_gen_hist' & 'm_tile_hist'
 }
+
 
 void Game::run() {
 
@@ -45,7 +51,7 @@ void Game::_destroy_game(){
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
 	for (uint i = 0; i < m_thread_num; ++i) {
-        m_threadpool[j]->join();
+        m_threadpool[i]->join();
     }
 }
 

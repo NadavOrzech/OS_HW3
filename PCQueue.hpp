@@ -6,7 +6,8 @@
 
 
 // Single Producer - Multiple Consumer queue
-template <typename T>class PCQueue
+template <typename T>
+class PCQueue
 {
 private:
 	pthread_mutex_t	mutex, cond_mutex;
@@ -16,7 +17,16 @@ private:
 	std::queue<T> queue;
 
 public:
-	PCQueue();
+	PCQueue(){
+        queue=new std::queue<T>();
+        pthread_mutex_init(&this->cond_mutex, nullptr);        // NEED TO CHECK what attribute to add
+        pthread_mutex_init(&this->mutex, nullptr);
+        this->size=new Semaphore();
+
+        this->writer_lock= false;
+        this->reader_lock=false;
+
+	}
 	~PCQueue();
 
 	// Blocks while queue is empty. When queue holds items, allows for a single
