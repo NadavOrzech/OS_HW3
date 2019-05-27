@@ -9,9 +9,10 @@
 template <typename T>class PCQueue
 {
 private:
-	pthread_mutex_t	c,p;
-	Semaphore size, consumer, resource;
-	int c_count,p_count;
+	pthread_mutex_t	mutex, cond_mutex;
+	Semaphore size;
+	bool writer_lock, reader_lock;
+	pthread_cond_t cond;
 	std::queue<T> queue;
 
 public:
