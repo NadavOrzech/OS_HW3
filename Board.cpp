@@ -113,6 +113,8 @@ void Board::printboard(){
         }
         cout << "\n";
     }
+    cout << "------------------------------------------------------------\n";
+
 }
 
 int Board::get_tiles_num(){

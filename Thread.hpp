@@ -26,7 +26,7 @@ public:
 	bool start()
 	{
 
-        int retval=pthread_create(&m_thread, NULL, entry_func, NULL);
+        int retval=pthread_create(&m_thread, NULL, entry_func, this);
         return (bool)retval;        //success==0
     }
 
@@ -47,7 +47,11 @@ protected:
 	uint m_thread_id; // A number from 0 -> Number of threads initialized, providing a simple numbering for you to use
 
 private:
-	static void * entry_func(void * thread) { ((Thread *)thread)->thread_workload(); return NULL; }
+	static void * entry_func(void * thread) {
+	    ((Thread *)thread)->thread_workload();
+	    return NULL;
+	}
+
 	pthread_t m_thread;
 };
 
@@ -60,8 +64,12 @@ private:
 
 public:
 	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist) :
-            Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){};
-	~GOL_thread(){};
+            Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){
+        pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
+    };
+	~GOL_thread(){
+	    pthread_mutex_destroy(&mutex);
+	};
 
 	void thread_workload() override {
 		int num=INIT;

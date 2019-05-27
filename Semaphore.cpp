@@ -21,8 +21,7 @@ Semaphore::~Semaphore() {
 
 void Semaphore::up(){
     pthread_mutex_lock(&mutex);
-//    if(counter < semaphorMax)
-        counter++;
+    counter++;
 
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);

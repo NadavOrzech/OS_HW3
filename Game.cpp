@@ -17,6 +17,7 @@ Game::Game(game_params params){
 	//TODO: need to initial 'm_gen_hist' & 'm_tile_hist'
 }
 
+Game::~Game(){}
 
 void Game::run() {
 
@@ -29,7 +30,10 @@ void Game::run() {
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
 		print_board(nullptr);
 	} // generation loop
-	print_board("Final Board");
+
+	if(this->print_on)
+		print_board("Final Board");
+
 	_destroy_game();
 }
 
@@ -77,27 +81,43 @@ void Game::_destroy_game(){
 	delete this->tiles_q;
 }
 
+const vector<double> Game::gen_hist() const{
+    return this->m_gen_hist;
+}
+
+const vector<tile_record> Game::tile_hist() const {
+    return this->m_tile_hist;
+}
+
+uint Game::thread_num() const{
+    return this->m_thread_num;
+}
+
+
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
 
-	if(print_on){ 
+	this->game_board->printboard();
 
-		// Clear the screen, to create a running animation 
-		if(interactive_on)
-			system("clear");
 
-		// Print small header if needed
-		if (header != nullptr)
-			cout << "<------------" << header << "------------>" << endl;
-		
-		// TODO: Print the board 
-
-		// Display for GEN_SLEEP_USEC micro-seconds on screen 
-		if(interactive_on)
-			usleep(GEN_SLEEP_USEC);
-	}
+//	if(print_on){
+//
+//		// Clear the screen, to create a running animation
+//		if(interactive_on)
+//			system("clear");
+//
+//		// Print small header if needed
+//		if (header != nullptr)
+//			cout << "<------------" << header << "------------>" << endl;
+//
+//		// TODO: Print the board
+//
+//		// Display for GEN_SLEEP_USEC micro-seconds on screen
+//		if(interactive_on)
+//			usleep(GEN_SLEEP_USEC);
+//	}
 
 }
 

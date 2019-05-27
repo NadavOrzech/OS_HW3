@@ -42,7 +42,7 @@ public:
         size->down();                            //preventing pop from empty queue
 
         pthread_mutex_lock(&cond_mutex);
-        while(this->writer_lock==1 || this->reader_lock==1)
+        while(this->writer_lock== true || this->reader_lock==true)
             pthread_cond_wait(&cond,&cond_mutex);
 
         this->reader_lock = true;               //if there is no writer by this line, unable reading
@@ -77,8 +77,8 @@ public:
 
         pthread_mutex_lock(&mutex);
         this->queue->push(item);
-        size->up();                              //allowing the next reader to pop
         pthread_mutex_unlock(&mutex);
+        size->up();                              //allowing the next reader to pop
 
 //---------End of the critical section----------
 
