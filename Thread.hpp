@@ -6,6 +6,12 @@
 
 #define INIT 0;
 #define GAME_DONE -1
+
+struct tile_record {
+	double tile_compute_time; // Compute time for the tile
+	uint thread_id; // The thread responsible for the compute
+};
+
 class Thread
 {
 public:
@@ -49,18 +55,28 @@ class GOL_thread : Thread {
 private:
 	Board* board;
     PCQueue<int>* queue;
+	vector<tile_record>* tile_hist;
 
 public:
-	GOL_thread(uint thread_id, Board* board, PCQueue<int>* queue) :
-            Thread(thread_id), board(board), queue(queue){};
+	GOL_thread(uint thread_id, Board* board, PCQueue<int>* queue, vector<tile_record>* tile_hist) :
+            Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){};
 	~GOL_thread();
 
 	void thread_workload() override {
 		int num=INIT;
         while(num!=-GAME_DONE) {
             num = queue->pop();         //num=tile number to do step
-            board->tile_step(num);
-            board->task_done();
+
+			auto tile_start = std::chrono::system_clock::now();
+			board->tile_step(num);
+			auto tile_end = std::chrono::system_clock::now();
+			
+			tile_record record;
+			record.thread_id=this->m_thread_id;
+			record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
+			tile_hist->push_back(record);
+
+			board->task_done();
             if (board->get_tasks_done() == board->get_tiles_num())  //gen finished
                 board->sem_up();
         }
