@@ -11,10 +11,10 @@ class PCQueue
 {
 private:
 	pthread_mutex_t	mutex, cond_mutex;
-	Semaphore size;
+	Semaphore *size;
 	bool writer_lock, reader_lock;
 	pthread_cond_t cond;
-	std::queue<T> queue;
+	std::queue<T> *queue;
 
 public:
 	PCQueue(){
@@ -29,8 +29,6 @@ public:
 	}
 	~PCQueue(){
         delete this->size;
-        delete this->consumer;
-        delete this->resource;
         delete this->queue;
         pthread_mutex_destroy(&cond_mutex);
         pthread_mutex_destroy(&mutex);
@@ -41,7 +39,7 @@ public:
 	// Assumes multiple consumers.
 	T pop(){
         T retVal;
-        size.down();                            //preventing pop from empty queue
+        size->down();                            //preventing pop from empty queue
 
         pthread_mutex_lock(&cond_mutex);
         while(this->writer_lock==1 || this->reader_lock==1)
@@ -53,8 +51,8 @@ public:
 //---------Start of the critical section--------
 
         pthread_mutex_lock(&mutex);
-        retVal=this->queue.front();
-        this->queue.pop();
+        retVal=this->queue->front();
+        this->queue->pop();
         pthread_mutex_unlock(&mutex);
 
 //---------End of the critical section----------
@@ -78,8 +76,8 @@ public:
 //---------Start of the critical section--------
 
         pthread_mutex_lock(&mutex);
-        this->queue.push(item);
-        size.up();                              //allowing the next reader to pop
+        this->queue->push(item);
+        size->up();                              //allowing the next reader to pop
         pthread_mutex_unlock(&mutex);
 
 //---------End of the critical section----------
