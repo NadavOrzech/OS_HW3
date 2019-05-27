@@ -1,10 +1,10 @@
 // C program to demonstrate working of Semaphores 
 #include <stdio.h> 
-#include <pthread.h> 
+#include <pthread.h>
 #include <semaphore.h> 
 #include <unistd.h> 
 #include "Semaphore.hpp"
-#include "Board.hpp"
+#include "Game.hpp"
 
 Semaphore* sem;
 void* thread(void* arg) 

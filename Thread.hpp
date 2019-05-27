@@ -1,6 +1,6 @@
 #ifndef __THREAD_H
 #define __THREAD_H
-#include "Headers.hpp"
+//#include "Headers.hpp"
 #include "Board.hpp"
 #include "PCQueue.hpp"
 
@@ -60,7 +60,7 @@ private:
 public:
 	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist) :
             Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){};
-	~GOL_thread();
+	~GOL_thread(){};
 
 	void thread_workload() override {
 		int num=INIT;

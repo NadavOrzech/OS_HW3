@@ -1,8 +1,8 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
-#include "Headers.hpp"
+//#include "Headers.hpp"
 #include "Thread.hpp"
-#include "Board.hpp"
+//#include "Board.hpp"
 #include "PCQueue.hpp"
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
