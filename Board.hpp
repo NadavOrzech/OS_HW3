@@ -33,7 +33,7 @@ public:
 //    void get_tile_delimeter(int tile_num, int* delimiter);      //send an empty array of 2 cells to update
 
     void tile_step(int tile_num);
-    void make_step();
+//    void make_step();
     void printboard();
     void swap_boards();
 

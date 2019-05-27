@@ -91,12 +91,12 @@ void Board::tile_step(int tile_num) {
     }
 }
 
-void Board::make_step(){
-    for (int i = 0; i < this->tiles_num; i++) {
-        tile_step(i);
-    }
-    swap_boards();
-}
+//void Board::make_step(){
+//    for (int i = 0; i < this->tiles_num; i++) {
+//        tile_step(i);
+//    }
+//    swap_boards();
+//}
 
 void Board::swap_boards(){
     bool_mat* tmp;

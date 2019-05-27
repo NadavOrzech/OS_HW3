@@ -3,6 +3,9 @@
 #include "Headers.hpp"
 #include "Board.hpp"
 #include "PCQueue.hpp"
+
+#define INIT 0;
+#define GAME_DONE -1
 class Thread
 {
 public:
@@ -52,14 +55,14 @@ public:
 	~GOL_thread();
 
 	void thread_workload() override {
-		int num = queue->pop();
-		board->tile_step(num);
-
-		board->task_done();
-		if(board->get_tasks_done()==board->get_tiles_num()){
-			board->sem_up();
-		}
-
+		int num=INIT;
+        while(num!=-GAME_DONE) {
+            num = queue->pop();         //num=tile number to do step
+            board->tile_step(num);
+            board->task_done();
+            if (board->get_tasks_done() == board->get_tiles_num())  //gen finished
+                board->sem_up();
+        }
 	}
 };
 
