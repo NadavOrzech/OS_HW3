@@ -2,6 +2,14 @@
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
+Game::Game(game_params* params){
+    this->m_gen_num=params->n_gen;
+    this->m_thread_num=params->n_thread;
+    // what to do with filename??
+    this->interactive_on=params->interactive_on;
+    this->print_on=params->print_on;
+}
+
 void Game::run() {
 
 	_init_game(); // Starts the threads and all other variables you need
@@ -18,6 +26,7 @@ void Game::run() {
 }
 
 void Game::_init_game() {
+
 
 	// Create game fields - Consider using utils:read_file, utils::split
 	// Create & Start threads
