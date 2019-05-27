@@ -8,7 +8,7 @@ add_executable(part1
         Headers.hpp
         Semaphore.hpp
         Semaphore.cpp
-        PCQueue.cpp
+#        PCQueue.cpp
         PCQueue.hpp
         Game.cpp
         Game.hpp
