@@ -16,14 +16,14 @@ public:
 	// Creates the internal thread via pthread_create 
 	bool start()
 	{
-        pthread_t thread;
-        int retval=pthread_create(&thread, NULL, entry_func, NULL);
+
+        int retval=pthread_create(&m_thread, NULL, entry_func, NULL);
     }
 
 	// Will not return until the internal thread has exited. 
 	void join()
 	{
-		pthread_join()
+		pthread_join(m_thread, NULL);
 	}
 
 	// Returns the user identifier
