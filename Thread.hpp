@@ -21,6 +21,7 @@ public:
 	{
 
         int retval=pthread_create(&m_thread, NULL, entry_func, NULL);
+        return (bool)retval;        //success==0
     }
 
 	// Will not return until the internal thread has exited. 
