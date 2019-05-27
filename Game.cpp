@@ -1,5 +1,7 @@
 #include "Game.hpp"
 
+
+#define POISON -1
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
@@ -37,6 +39,13 @@ void Game::_init_game() {
 	// Create game fields - Consider using utils:read_file, utils::split
 	// Create & Start threads
 	// Testing of your implementation will presume all threads are started here
+
+	for (int i = 0; i < this->m_thread_num; i++) {
+		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &this->m_tile_hist)));
+		this->m_threadpool.back()->start();
+	}
+
+
 }
 
 void Game::_step(uint curr_gen) {
@@ -45,8 +54,8 @@ void Game::_step(uint curr_gen) {
 	// Swap pointers between current and next field 
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
 
-    for (int i = 0; i < game_board->get_tiles_num() ; ++i) {
-        tiles_q->push(i);
+    for (int i = 0; i < game_board->get_tiles_num() ; i++) {
+		tiles_q->push(i);
     }
     game_board->sem_down();
     game_board->swap_boards();
@@ -56,9 +65,16 @@ void Game::_destroy_game(){
 	// Destroys board and frees all threads and resources 
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
+	for (int j = 0; j < m_thread_num; ++j) {
+		this->tiles_q->push(POISON);
+	}
+
 	for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
     }
+
+	delete game_board;
+	delete this->tiles_q;
 }
 
 /*--------------------------------------------------------------------------------

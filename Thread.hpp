@@ -53,22 +53,22 @@ private:
 
 class GOL_thread : Thread {
 private:
-	Board* board;
-    PCQueue<int>* queue;
+	Board** board;
+    PCQueue<int>** queue;
 	vector<tile_record>* tile_hist;
 
 public:
-	GOL_thread(uint thread_id, Board* board, PCQueue<int>* queue, vector<tile_record>* tile_hist) :
+	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist) :
             Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){};
 	~GOL_thread();
 
 	void thread_workload() override {
 		int num=INIT;
         while(num!=-GAME_DONE) {
-            num = queue->pop();         //num=tile number to do step
+            num = (*queue)->pop();         //num=tile number to do step
 
 			auto tile_start = std::chrono::system_clock::now();
-			board->tile_step(num);
+			(*board)->tile_step(num);
 			auto tile_end = std::chrono::system_clock::now();
 			
 			tile_record record;
@@ -76,9 +76,9 @@ public:
 			record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
 			tile_hist->push_back(record);
 
-			board->task_done();
-            if (board->get_tasks_done() == board->get_tiles_num())  //gen finished
-                board->sem_up();
+			(*board)->task_done();
+            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  //gen finished
+				(*board)->sem_up();
         }
 	}
 };
