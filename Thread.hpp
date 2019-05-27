@@ -1,12 +1,14 @@
 #ifndef __THREAD_H
 #define __THREAD_H
 #include "Headers.hpp"
+#include "Board.hpp"
+#include "PCQueue.hpp"
 class Thread
 {
 public:
-	Thread(uint thread_id) 
+	Thread(uint thread_id)  : m_thread_id(thread_id)
 	{
-		// Only places thread_id 
+        // Only places thread_id
 	} 
 	virtual ~Thread() {} // Does nothing 
 
@@ -14,11 +16,14 @@ public:
 	// Creates the internal thread via pthread_create 
 	bool start()
 	{
-	}
+        pthread_t thread;
+        int retval=pthread_create(&thread, NULL, entry_func, NULL);
+    }
 
 	// Will not return until the internal thread has exited. 
 	void join()
 	{
+		pthread_join()
 	}
 
 	// Returns the user identifier
@@ -34,6 +39,28 @@ protected:
 private:
 	static void * entry_func(void * thread) { ((Thread *)thread)->thread_workload(); return NULL; }
 	pthread_t m_thread;
+};
+
+class GOL_thread : Thread {
+private:
+	Board* board;
+    PCQueue<int>* queue;
+
+public:
+	GOL_thread(uint thread_id, Board* board, PCQueue<int>* queue) :
+            Thread(thread_id), board(board), queue(queue){};
+	~GOL_thread();
+
+	void thread_workload() override {
+		int num = queue->pop();
+		board->tile_step(num);
+
+		board->task_done();
+		if(board->get_tasks_done()==board->get_tiles_num()){
+			board->sem_up();
+		}
+
+	}
 };
 
 #endif

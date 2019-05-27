@@ -25,6 +25,7 @@ Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
     }
 
     this->width=tmp.size();
+    this->tasks_done=0;
     this->tiles_start_delimiters=new int[tile_num];
 
     int size_of_tile=this->height/tile_num;
@@ -112,4 +113,27 @@ void Board::printboard(){
         }
         cout << "\n";
     }
+}
+
+int Board::get_tiles_num(){
+    return this->tiles_num;
+}
+
+void Board::task_done(){
+    this->tasks_done++;
+}
+void Board::reset_tasks_done(){
+    this->tasks_done=0;
+}
+
+int Board::get_tasks_done(){
+    return this->tasks_done;
+}
+
+void Board::sem_up(){
+    this->gen_done.up();
+}
+
+void Board::sem_down(){
+    this->gen_done.down();
 }
