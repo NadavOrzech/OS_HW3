@@ -56,6 +56,7 @@ private:
 	Board** board;
     PCQueue<int>** queue;
 	vector<tile_record>* tile_hist;
+    pthread_mutex_t mutex;
 
 public:
 	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist) :
@@ -74,11 +75,15 @@ public:
 			tile_record record;
 			record.thread_id=this->m_thread_id;
 			record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
-			tile_hist->push_back(record);
 
+            //critical code
+            pthread_mutex_lock(&mutex);
+            tile_hist->push_back(record);
 			(*board)->task_done();
             if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  //gen finished
 				(*board)->sem_up();
+            pthread_mutex_unlock(&mutex);
+            //end of critical code
         }
 	}
 };
