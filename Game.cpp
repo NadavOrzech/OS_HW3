@@ -45,7 +45,7 @@ void Game::_init_game() {
 	// Testing of your implementation will presume all threads are started here
 
 	for (int i = 0; i < this->m_thread_num; i++) {
-		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &this->m_tile_hist)));
+		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &this->m_tile_hist, m_thread_num)));
 		this->m_threadpool.back()->start();
 	}
 
@@ -80,7 +80,11 @@ void Game::_destroy_game(){
         m_threadpool[i]->join();
     }
 
-	delete game_board;
+    for (uint i = 0; i < m_thread_num; ++i) {
+        delete(m_threadpool[i]);
+    }
+
+    delete game_board;
 	delete this->tiles_q;
 }
 

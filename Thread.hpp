@@ -5,7 +5,7 @@
 #include "PCQueue.hpp"
 
 #define INIT -2;
-#define GAME_DONE -1
+#define POISON -1
 
 struct tile_record {
 	double tile_compute_time; // Compute time for the tile
@@ -59,11 +59,12 @@ private:
 	Board** board;
     PCQueue<int>** queue;
 	vector<tile_record>* tile_hist;
+    int n_threads;
     pthread_mutex_t mutex;
 
 public:
-	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist) :
-            Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist){
+	GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, vector<tile_record>* tile_hist, int n_threads) :
+            Thread(thread_id), board(board), queue(queue), tile_hist(tile_hist), n_threads(n_threads){
         pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
     };
 	~GOL_thread(){
@@ -72,7 +73,7 @@ public:
 
 	void thread_workload() override {
 		int num=INIT;
-        while(num!=GAME_DONE) {
+        while(num!=POISON) {
             num = (*queue)->pop();         //num=tile number to do step
 
 			auto tile_start = std::chrono::system_clock::now();
@@ -87,17 +88,17 @@ public:
             pthread_mutex_lock(&mutex);
             tile_hist->push_back(record);
 			(*board)->task_done();											//does ++ to task finished counter
-            if (num != GAME_DONE && (*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished
+            if (num != POISON && (*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
 				(*board)->sem_up();
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-            else if ((*board)->get_tasks_done() == )  	//gen finished
+
+            else if ((*board)->get_tasks_done() == n_threads)  	//game finished, so we want to pop "poison" to all the threads
 					(*board)->sem_up();
-            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
-			(*this->queue)->signal_cond_thread();
+
+//			(*this->queue)->signal_cond_thread();
             pthread_mutex_unlock(&mutex);
             //end of critical code
         }
-        pthread_exit(nullptr);
+//        pthread_exit(nullptr);
 	}
 };
 

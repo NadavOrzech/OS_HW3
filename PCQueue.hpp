@@ -19,8 +19,9 @@ private:
 public:
 	PCQueue(){
         queue=new std::queue<T>();
-        pthread_mutex_init(&this->cond_mutex, nullptr);        // NEED TO CHECK what attribute to add
-        pthread_mutex_init(&this->mutex, nullptr);
+        pthread_mutex_init(&cond_mutex, nullptr);
+        pthread_mutex_init(&mutex, nullptr);
+        pthread_cond_init(&cond, NULL);
         this->size=new Semaphore();
 
         this->writer_lock= false;
@@ -32,6 +33,7 @@ public:
         delete this->queue;
         pthread_mutex_destroy(&cond_mutex);
         pthread_mutex_destroy(&mutex);
+        pthread_cond_destroy(&cond);
     }
 
 	// Blocks while queue is empty. When queue holds items, allows for a single
@@ -48,18 +50,18 @@ public:
         this->reader_lock = true;               //if there is no writer by this line, unable reading
         pthread_mutex_unlock(&cond_mutex);
 
-//---------Start of the critical section--------
+    //---------Start of the critical section--------
 
         pthread_mutex_lock(&mutex);
         retVal=this->queue->front();
         this->queue->pop();
         pthread_mutex_unlock(&mutex);
 
-//---------End of the critical section----------
+    //---------End of the critical section----------
 
         pthread_mutex_lock(&cond_mutex);
         this->reader_lock = false;
-        pthread_cond_broadcast(&cond_mutex);    //enabling the next thread to enter
+        pthread_cond_broadcast(&cond);    //enabling the next thread to enter
         pthread_mutex_unlock(&cond_mutex);
 
         return retVal;
@@ -69,27 +71,28 @@ public:
 	// Hint for *minimal delay* - Allow the consumers to delay the producer as little as possible.  
 	// Assumes single producer 
 	void push(const T& item){
+
         pthread_mutex_lock(&cond_mutex);
         this->writer_lock = true;
         pthread_mutex_unlock(&cond_mutex);
 
-//---------Start of the critical section--------
+    //---------Start of the critical section--------
 
         pthread_mutex_lock(&mutex);
         this->queue->push(item);
         pthread_mutex_unlock(&mutex);
         size->up();                              //allowing the next reader to pop
 
-//---------End of the critical section----------
+    //---------End of the critical section----------
 
         pthread_mutex_lock(&cond_mutex);
         this->writer_lock = false;
-        pthread_cond_broadcast(&cond_mutex);
+        pthread_cond_broadcast(&cond);
         pthread_mutex_unlock(&cond_mutex);
     }
 
     void signal_cond_thread(){
-        pthread_cond_signal(&cond_mutex);
+        pthread_cond_signal(&cond);
 
     }
 
