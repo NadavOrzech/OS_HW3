@@ -91,13 +91,6 @@ void Board::tile_step(int tile_num) {
     }
 }
 
-//void Board::make_step(){
-//    for (int i = 0; i < this->tiles_num; i++) {
-//        tile_step(i);
-//    }
-//    swap_boards();
-//}
-
 void Board::swap_boards(){
     bool_mat* tmp;
     tmp=current;
@@ -114,11 +107,6 @@ void Board::printboard(){
 //        cout << "\n";
 //    }
 //    cout << "------------------------------------------------------------\n";
-
-
-
-
-
 
     cout << u8"╔" << string(u8"═") * this->width << u8"╗" << endl;
     for (uint i = 0; i < this->height; ++i) {

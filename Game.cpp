@@ -108,20 +108,20 @@ inline void Game::print_board(const char* header) {
 	if(print_on){
 
 		// Clear the screen, to create a running animation
-/*		if(interactive_on)
+		if(interactive_on)
 			system("clear");
-*/
+
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
 
 		// TODO: Print the board
 		this->game_board->printboard();
-/*!!!!!!!!!!!!!!!!!!!!!!!
+
 		// Display for GEN_SLEEP_USEC micro-seconds on screen
 		if(interactive_on)
 			usleep(GEN_SLEEP_USEC);
-*/	}
+	}
 
 }
 
