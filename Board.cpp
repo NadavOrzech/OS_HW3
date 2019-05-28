@@ -5,8 +5,8 @@
 #include "Board.hpp"
 
 Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
-    this->current= new bool_mat;
-    this->next= new bool_mat;
+    this->current= new bool_mat();
+    this->next= new bool_mat();
     vector<string> lines=utils::read_lines(s);          //maybe need copy constructor
     this->height=lines.size();
     vector<string> tmp;
@@ -82,7 +82,7 @@ void Board::tile_step(int tile_num) {
             if(current->at(i).at(j)==DEAD_CELL && live_neighbors==3)
                 next->at(i).at(j)=LIVE_CELL;
 
-            else if(current->at(i).at(j)==LIVE_CELL && live_neighbors>3 && live_neighbors<2)
+            else if(current->at(i).at(j)==LIVE_CELL && (live_neighbors>3 || live_neighbors<2))
                 next->at(i).at(j)=DEAD_CELL;
 
             else
@@ -99,15 +99,6 @@ void Board::swap_boards(){
 }
 
 void Board::printboard(){
-
-//    for (int i = 0; i <this->height ; i++) {
-//        for (int j = 0; j <this->width ; j++) {
-//            cout <<current->at(i).at(j);
-//        }
-//        cout << "\n";
-//    }
-//    cout << "------------------------------------------------------------\n";
-
     cout << u8"╔" << string(u8"═") * this->width << u8"╗" << endl;
     for (uint i = 0; i < this->height; ++i) {
         cout << u8"║";

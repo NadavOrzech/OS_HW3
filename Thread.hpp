@@ -87,7 +87,7 @@ public:
 
             //critical code
             pthread_mutex_lock(&mutex);
-            tile_hist->push_back(record);
+//            tile_hist->push_back(record);
 			(*board)->task_done();											//does ++ to task finished counter
             if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
 				(*board)->sem_up();

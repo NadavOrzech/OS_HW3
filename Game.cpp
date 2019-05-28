@@ -28,11 +28,8 @@ void Game::run() {
 		_step(i); // Iterates a single generation 
 		auto gen_end = std::chrono::system_clock::now();
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
-		string str = "generation" + std::to_string(i);
-		 print_board(str.c_str());
+		print_board(nullptr);
 	} // generation loop
-
-	if(this->print_on)
 		print_board("Final Board");
 
 	_destroy_game();
@@ -46,7 +43,7 @@ void Game::_init_game() {
 	// Testing of your implementation will presume all threads are started here
 
 	for (int i = 0; i < this->m_thread_num; i++) {
-		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &this->m_tile_hist, m_thread_num)));
+		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &(this->m_tile_hist), m_thread_num)));
 		this->m_threadpool.back()->start();
 	}
 }
@@ -108,14 +105,13 @@ inline void Game::print_board(const char* header) {
 	if(print_on){
 
 		// Clear the screen, to create a running animation
-		if(interactive_on)
-			system("clear");
+//		if(interactive_on)
+//			system("clear");
 
 		// Print small header if needed
 		if (header != nullptr)
 			cout << "<------------" << header << "------------>" << endl;
 
-		// TODO: Print the board
 		this->game_board->printboard();
 
 		// Display for GEN_SLEEP_USEC micro-seconds on screen
