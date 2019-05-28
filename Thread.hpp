@@ -4,7 +4,7 @@
 #include "Board.hpp"
 #include "PCQueue.hpp"
 
-#define INIT 0;
+#define INIT -2;
 #define GAME_DONE -1
 
 struct tile_record {
@@ -31,8 +31,7 @@ public:
     }
 
 	// Will not return until the internal thread has exited. 
-	void join()
-	{
+	void join(){
 		pthread_join(m_thread, NULL);
 	}
 
@@ -73,7 +72,7 @@ public:
 
 	void thread_workload() override {
 		int num=INIT;
-        while(num!=-GAME_DONE) {
+        while(num!=GAME_DONE) {
             num = (*queue)->pop();         //num=tile number to do step
 
 			auto tile_start = std::chrono::system_clock::now();
@@ -87,12 +86,18 @@ public:
             //critical code
             pthread_mutex_lock(&mutex);
             tile_hist->push_back(record);
-			(*board)->task_done();
-            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  //gen finished
+			(*board)->task_done();											//does ++ to task finished counter
+            if (num != GAME_DONE && (*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished
 				(*board)->sem_up();
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            else if ((*board)->get_tasks_done() == )  	//gen finished
+					(*board)->sem_up();
+            //!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!11
+			(*this->queue)->signal_cond_thread();
             pthread_mutex_unlock(&mutex);
             //end of critical code
         }
+        pthread_exit(nullptr);
 	}
 };
 

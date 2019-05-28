@@ -25,6 +25,8 @@ void Semaphore::up(){
 
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
+
+
 }
 
 void Semaphore::down() {

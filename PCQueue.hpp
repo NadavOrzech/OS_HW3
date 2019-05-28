@@ -59,7 +59,7 @@ public:
 
         pthread_mutex_lock(&cond_mutex);
         this->reader_lock = false;
-        pthread_cond_broadcast(&cond_mutex);    //enabling the next tread to enter
+        pthread_cond_broadcast(&cond_mutex);    //enabling the next thread to enter
         pthread_mutex_unlock(&cond_mutex);
 
         return retVal;
@@ -88,6 +88,10 @@ public:
         pthread_mutex_unlock(&cond_mutex);
     }
 
+    void signal_cond_thread(){
+        pthread_cond_signal(&cond_mutex);
+
+    }
 
 
 };

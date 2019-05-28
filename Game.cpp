@@ -61,7 +61,8 @@ void Game::_step(uint curr_gen) {
     for (int i = 0; i < game_board->get_tiles_num() ; i++) {
 		tiles_q->push(i);
     }
-    game_board->sem_down();
+    game_board->sem_down();			//waits for end of generation
+    game_board->reset_tasks_done();		//resets tasks finished counter for next generation
     game_board->swap_boards();
 }
 
@@ -70,8 +71,10 @@ void Game::_destroy_game(){
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
 	for (int j = 0; j < m_thread_num; ++j) {
-		this->tiles_q->push(POISON);
+		tiles_q->push(POISON);
 	}
+	game_board->sem_down();			//waits for end of generation
+	game_board->reset_tasks_done();		//resets tasks finished counter for next generation
 
 	for (uint i = 0; i < m_thread_num; ++i) {
         m_threadpool[i]->join();
