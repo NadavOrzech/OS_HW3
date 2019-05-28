@@ -28,7 +28,8 @@ void Game::run() {
 		_step(i); // Iterates a single generation 
 		auto gen_end = std::chrono::system_clock::now();
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
-		print_board(nullptr);
+		string str = "generation" + std::to_string(i);
+		 print_board(str.c_str());
 	} // generation loop
 
 	if(this->print_on)
@@ -48,8 +49,6 @@ void Game::_init_game() {
 		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &this->m_tile_hist, m_thread_num)));
 		this->m_threadpool.back()->start();
 	}
-
-
 }
 
 void Game::_step(uint curr_gen) {
@@ -76,13 +75,11 @@ void Game::_destroy_game(){
 	game_board->sem_down();			//waits for end of generation
 	game_board->reset_tasks_done();		//resets tasks finished counter for next generation
 
-	for (uint i = 0; i < m_thread_num; ++i) {
+	for (uint i = 0; i < m_thread_num; ++i)
         m_threadpool[i]->join();
-    }
 
-    for (uint i = 0; i < m_thread_num; ++i) {
+    for (uint i = 0; i < m_thread_num; ++i)
         delete(m_threadpool[i]);
-    }
 
     delete game_board;
 	delete this->tiles_q;
@@ -105,7 +102,7 @@ uint Game::thread_num() const{
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
-
+	cout << header << endl;
 	this->game_board->printboard();
 
 

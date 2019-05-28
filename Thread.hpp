@@ -75,6 +75,7 @@ public:
 		int num=INIT;
         while(num!=POISON) {
             num = (*queue)->pop();         //num=tile number to do step
+			if (num == POISON) break;
 
 			auto tile_start = std::chrono::system_clock::now();
 			(*board)->tile_step(num);
@@ -88,17 +89,20 @@ public:
             pthread_mutex_lock(&mutex);
             tile_hist->push_back(record);
 			(*board)->task_done();											//does ++ to task finished counter
-            if (num != POISON && (*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
+            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
 				(*board)->sem_up();
 
-            else if ((*board)->get_tasks_done() == n_threads)  	//game finished, so we want to pop "poison" to all the threads
-					(*board)->sem_up();
+
 
 //			(*this->queue)->signal_cond_thread();
             pthread_mutex_unlock(&mutex);
             //end of critical code
         }
-//        pthread_exit(nullptr);
+		pthread_mutex_lock(&mutex);
+		(*board)->sem_up();
+		pthread_mutex_unlock(&mutex);
+
+
 	}
 };
 
