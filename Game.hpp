@@ -43,6 +43,7 @@ protected: // All members here are protected, instead of private for testing pur
 	inline void print_board(const char* header);
 	void print_board_for_test();
 
+
 	uint m_gen_num; 			 		// The number of generations to run
 	uint m_thread_num; 			 		// Effective number of threads = min(thread_num, field_height)
 	vector<tile_record> m_tile_hist; 	// Shared Timing history for tiles: First m_thread_num cells are the calculation durations for tiles in generation 1 and so on. 
@@ -61,4 +62,5 @@ protected: // All members here are protected, instead of private for testing pur
 	// TODO: Add in your variables and synchronization primitives
 
 };
+
 #endif

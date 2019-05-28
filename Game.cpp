@@ -2,6 +2,64 @@
 
 
 #define POISON -1
+
+/*--------------------------------------------------------------------------------
+								Thread inherited struct
+--------------------------------------------------------------------------------*/
+
+class GOL_thread : Thread {
+private:
+    Board** board;
+    PCQueue<int>** queue;
+    Game* game;
+    int n_threads;
+    pthread_mutex_t mutex;
+
+public:
+    GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, Game* game, int n_threads) :
+            Thread(thread_id), board(board), queue(queue), game(game), n_threads(n_threads){
+        pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
+    };
+    ~GOL_thread(){
+        pthread_mutex_destroy(&mutex);
+    };
+
+    void thread_workload() override {
+        int num=INIT;
+        while(num!=POISON) {
+            num = (*queue)->pop();         //num=tile number to do step
+            if (num == POISON) break;
+
+            auto tile_start = std::chrono::system_clock::now();
+            (*board)->tile_step(num);
+            auto tile_end = std::chrono::system_clock::now();
+
+            tile_record record;
+            record.thread_id=this->m_thread_id;
+            record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
+
+            //critical code
+            pthread_mutex_lock(&mutex);
+            auto hist=game->tile_hist();
+            hist.push_back(record);
+            (*board)->task_done();											//does ++ to task finished counter
+            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
+                (*board)->sem_up();
+
+
+
+//			(*this->queue)->signal_cond_thread();
+            pthread_mutex_unlock(&mutex);
+            //end of critical code
+        }
+        pthread_mutex_lock(&mutex);
+        (*board)->sem_up();
+        pthread_mutex_unlock(&mutex);
+
+
+    }
+};
+
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
@@ -13,6 +71,7 @@ Game::Game(game_params params){
 
 	this->game_board = new Board(params.filename, this->m_thread_num);
 	this->tiles_q=new PCQueue<int>();
+    m_tile_hist;
 
 	//TODO: need to initial 'm_gen_hist' & 'm_tile_hist'
 }
@@ -43,7 +102,7 @@ void Game::_init_game() {
 	// Testing of your implementation will presume all threads are started here
 
 	for (int i = 0; i < this->m_thread_num; i++) {
-		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, &(this->m_tile_hist), m_thread_num)));
+		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, this, m_thread_num)));
 		this->m_threadpool.back()->start();
 	}
 }
