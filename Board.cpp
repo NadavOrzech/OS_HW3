@@ -7,7 +7,7 @@
 Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
     this->current= new bool_mat();
     this->next= new bool_mat();
-    vector<string> lines=utils::read_lines(s);          //maybe need copy constructor
+    vector<string> lines=utils::read_lines(s);
     this->height=lines.size();
     vector<string> tmp;
 
@@ -52,6 +52,9 @@ int Board::get_end_line(int tile_num) {
 }
 
 int Board::live_neighbors(int row, int col){
+    //returns number of live neighbors of given cell
+    //the neighbors consist of the eight cells surrounding it, including diagonal
+
     int count=0;
 
     for (int i = row-1; i <= row+1; ++i) {
@@ -70,10 +73,13 @@ int Board::live_neighbors(int row, int col){
 }
 
 void Board::tile_step(int tile_num) {
+    //applies one step of the rules for the given tile
+    //updates the "next" board according to the games rules
+
+
     int start_line=this->get_start_line(tile_num);
     int end_line=this->get_end_line(tile_num);
     int live_neighbors;
-
 
     for (int i = start_line; i <=end_line ; ++i) {
         for (int j = 0; j < this->width; ++j) {
@@ -133,11 +139,4 @@ void Board::sem_down(){
     this->gen_done.down();
 }
 
-int Board::get_heigth() {
-    return this->height;
-}
-
-int Board::get_width() {
-    return this->width;
-}
 

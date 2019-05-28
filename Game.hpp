@@ -34,6 +34,9 @@ public:
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
 
 
+	Board* game_get_board();
+	PCQueue<int>* game_get_queue();
+
 protected: // All members here are protected, instead of private for testing purposes
 
 	// See Game.cpp for details on these three functions
@@ -41,7 +44,6 @@ protected: // All members here are protected, instead of private for testing pur
 	void _step(uint curr_gen); 
 	void _destroy_game(); 
 	inline void print_board(const char* header);
-	void print_board_for_test();
 
 
 	uint m_gen_num; 			 		// The number of generations to run

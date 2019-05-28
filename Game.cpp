@@ -9,15 +9,15 @@
 
 class GOL_thread : Thread {
 private:
-    Board** board;
-    PCQueue<int>** queue;
+//    Board** board;
+//    PCQueue<int>** queue;
     Game* game;
-    int n_threads;
+//    int n_threads;
     pthread_mutex_t mutex;
 
 public:
-    GOL_thread(uint thread_id, Board** board, PCQueue<int>** queue, Game* game, int n_threads) :
-            Thread(thread_id), board(board), queue(queue), game(game), n_threads(n_threads){
+    GOL_thread(uint thread_id, Game* game) :
+            Thread(thread_id), game(game){
         pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
     };
     ~GOL_thread(){
@@ -27,11 +27,14 @@ public:
     void thread_workload() override {
         int num=INIT;
         while(num!=POISON) {
-            num = (*queue)->pop();         //num=tile number to do step
+            num=game->game_get_queue()->pop();
+//            num = (*queue)->pop();            //num=tile number to do step
             if (num == POISON) break;
 
             auto tile_start = std::chrono::system_clock::now();
-            (*board)->tile_step(num);
+            Board* board=game->game_get_board();
+            board->tile_step(num);
+//            game->(*board)->tile_step(num);
             auto tile_end = std::chrono::system_clock::now();
 
             tile_record record;
@@ -42,18 +45,19 @@ public:
             pthread_mutex_lock(&mutex);
             auto hist=game->tile_hist();
             hist.push_back(record);
-            (*board)->task_done();											//does ++ to task finished counter
-            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
-                (*board)->sem_up();
-
-
-
-//			(*this->queue)->signal_cond_thread();
+            board->task_done();                                         //updates counter of finished tasks
+//            (*board)->task_done();
+            if (board->get_tasks_done() == board->get_tiles_num())  	//gen finished, all tiles calculated
+                board->sem_up();
+//            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
+//                (*board)->sem_up();
             pthread_mutex_unlock(&mutex);
             //end of critical code
         }
         pthread_mutex_lock(&mutex);
-        (*board)->sem_up();
+        Board* board=game->game_get_board();
+        board->sem_up();
+//        (*board)->sem_up();                 //needs to be under if...? ask nadav
         pthread_mutex_unlock(&mutex);
 
 
@@ -61,7 +65,7 @@ public:
 };
 
 /*--------------------------------------------------------------------------------
-								
+								Game Struct
 --------------------------------------------------------------------------------*/
 Game::Game(game_params params){
     this->m_gen_num=params.n_gen;
@@ -95,14 +99,12 @@ void Game::run() {
 }
 
 void Game::_init_game() {
-
-
-	// Create game fields - Consider using utils:read_file, utils::split
+    // Create game fields - Consider using utils:read_file, utils::split
 	// Create & Start threads
 	// Testing of your implementation will presume all threads are started here
 
 	for (int i = 0; i < this->m_thread_num; i++) {
-		this->m_threadpool.push_back((Thread*)(new GOL_thread(i,&this->game_board,&this->tiles_q, this, m_thread_num)));
+		this->m_threadpool.push_back((Thread*)(new GOL_thread(i, this)));
 		this->m_threadpool.back()->start();
 	}
 }
@@ -116,7 +118,7 @@ void Game::_step(uint curr_gen) {
     for (int i = 0; i < game_board->get_tiles_num() ; i++) {
 		tiles_q->push(i);
     }
-    game_board->sem_down();			//waits for end of generation
+    game_board->sem_down();			    //waits for end of generation - all tasks need to finish
     game_board->reset_tasks_done();		//resets tasks finished counter for next generation
     game_board->swap_boards();
 }
@@ -128,7 +130,7 @@ void Game::_destroy_game(){
 	for (int j = 0; j < m_thread_num; ++j) {
 		tiles_q->push(POISON);
 	}
-	game_board->sem_down();			//waits for end of generation
+	game_board->sem_down();			    //waits for all the threads to exit
 	game_board->reset_tasks_done();		//resets tasks finished counter for next generation
 
 	for (uint i = 0; i < m_thread_num; ++i)
@@ -138,7 +140,7 @@ void Game::_destroy_game(){
         delete(m_threadpool[i]);
 
     delete game_board;
-	delete this->tiles_q;
+	delete tiles_q;
 }
 
 const vector<double> Game::gen_hist() const{
@@ -153,13 +155,18 @@ uint Game::thread_num() const{
     return this->m_thread_num;
 }
 
+Board* Game::game_get_board(){
+    return this->game_board;
+}
+
+PCQueue<int>* Game::game_get_queue(){
+        return this->tiles_q;
+};
 
 /*--------------------------------------------------------------------------------
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
-//	cout << header << endl;
-
 
 	if(print_on){
 
