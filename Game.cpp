@@ -102,32 +102,45 @@ uint Game::thread_num() const{
 								
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
-	cout << header << endl;
-	this->game_board->printboard();
+//	cout << header << endl;
 
 
-//	if(print_on){
-//
-//		// Clear the screen, to create a running animation
-//		if(interactive_on)
-//			system("clear");
-//
-//		// Print small header if needed
-//		if (header != nullptr)
-//			cout << "<------------" << header << "------------>" << endl;
-//
-//		// TODO: Print the board
-//
-//		// Display for GEN_SLEEP_USEC micro-seconds on screen
-//		if(interactive_on)
-//			usleep(GEN_SLEEP_USEC);
-//	}
+	if(print_on){
+
+		// Clear the screen, to create a running animation
+/*		if(interactive_on)
+			system("clear");
+*/
+		// Print small header if needed
+		if (header != nullptr)
+			cout << "<------------" << header << "------------>" << endl;
+
+		// TODO: Print the board
+		this->game_board->printboard();
+/*!!!!!!!!!!!!!!!!!!!!!!!
+		// Display for GEN_SLEEP_USEC micro-seconds on screen
+		if(interactive_on)
+			usleep(GEN_SLEEP_USEC);
+*/	}
 
 }
 
 
-/* Function sketch to use for printing the board. You will need to decide its placement and how exactly 
-	to bring in the field's parameters. 
+//void Game::print_board_for_test(){
+//	cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
+//	for (uint i = 0; i < this->game_board->get_heigth(); ++i) {
+//		cout << u8"║";
+//		for (uint j = 0; j < this->game_board->get_width() ; ++j) {
+//			cout << (this->game_board[i][j] ? u8"█" : u8"░");
+//		}
+//		cout << u8"║" << endl;
+//	}
+//	cout << u8"╚" << string(u8"═") * field_width << u8"╝" << endl;
+//}
+
+/*
+ Function sketch to use for printing the board. You will need to decide its placement and how exactly
+	to bring in the field's parameters.
 
 		cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
 		for (uint i = 0; i < field_height ++i) {
@@ -138,7 +151,7 @@ inline void Game::print_board(const char* header) {
 			cout << u8"║" << endl;
 		}
 		cout << u8"╚" << string(u8"═") * field_width << u8"╝" << endl;
-*/ 
+*/
 
 
 

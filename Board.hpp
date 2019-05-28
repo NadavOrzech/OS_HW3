@@ -43,6 +43,8 @@ public:
     int get_tasks_done();
     void sem_up();
     void sem_down();
+    int get_heigth();
+    int get_width();
 };
 
 

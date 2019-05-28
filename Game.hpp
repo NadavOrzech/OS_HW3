@@ -41,6 +41,7 @@ protected: // All members here are protected, instead of private for testing pur
 	void _step(uint curr_gen); 
 	void _destroy_game(); 
 	inline void print_board(const char* header);
+	void print_board_for_test();
 
 	uint m_gen_num; 			 		// The number of generations to run
 	uint m_thread_num; 			 		// Effective number of threads = min(thread_num, field_height)

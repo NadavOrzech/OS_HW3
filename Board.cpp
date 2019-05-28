@@ -107,14 +107,28 @@ void Board::swap_boards(){
 
 void Board::printboard(){
 
-    for (int i = 0; i <this->height ; i++) {
-        for (int j = 0; j <this->width ; j++) {
-            cout <<current->at(i).at(j);
-        }
-        cout << "\n";
-    }
-    cout << "------------------------------------------------------------\n";
+//    for (int i = 0; i <this->height ; i++) {
+//        for (int j = 0; j <this->width ; j++) {
+//            cout <<current->at(i).at(j);
+//        }
+//        cout << "\n";
+//    }
+//    cout << "------------------------------------------------------------\n";
 
+
+
+
+
+
+    cout << u8"╔" << string(u8"═") * this->width << u8"╗" << endl;
+    for (uint i = 0; i < this->height; ++i) {
+        cout << u8"║";
+        for (uint j = 0; j < this->width; ++j) {
+            cout << (this->current->at(i).at(j) ? u8"█" : u8"░");
+        }
+        cout << u8"║" << endl;
+    }
+    cout << u8"╚" << string(u8"═") * this->width << u8"╝" << endl;
 }
 
 int Board::get_tiles_num(){
@@ -139,3 +153,12 @@ void Board::sem_up(){
 void Board::sem_down(){
     this->gen_done.down();
 }
+
+int Board::get_heigth() {
+    return this->height;
+}
+
+int Board::get_width() {
+    return this->width;
+}
+
