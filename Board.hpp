@@ -19,7 +19,6 @@ private:
     int width;
     int height;
     int tasks_done;                     //counter of tasks that finished in current generation
-    Semaphore gen_done;                 //semaphore for producer to wait for the tasks in current generation to finish
 
 public:
     Board(const string& s, int tile_num);
@@ -37,8 +36,7 @@ public:
     void task_done();                   //updates counter of finished tasks
     void reset_tasks_done();            //resets counter of finished tasks for new generation
     int get_tasks_done();               //returns number of finished tasks in current generation
-    void sem_up();
-    void sem_down();
+
 
 };
 

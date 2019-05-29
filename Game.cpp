@@ -9,58 +9,35 @@
 
 class GOL_thread : Thread {
 private:
-//    Board** board;
-//    PCQueue<int>** queue;
     Game* game;
-//    int n_threads;
-    pthread_mutex_t mutex;
 
 public:
-    GOL_thread(uint thread_id, Game* game) :
-            Thread(thread_id), game(game){
-        pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
-    };
-    ~GOL_thread(){
-        pthread_mutex_destroy(&mutex);
-    };
+    GOL_thread(uint thread_id, Game* game) : Thread(thread_id), game(game) {};
+    ~GOL_thread(){};
 
     void thread_workload() override {
         int num=INIT;
         while(num!=POISON) {
             num=game->game_get_queue()->pop();
-//            num = (*queue)->pop();            //num=tile number to do step
             if (num == POISON) break;
 
             auto tile_start = std::chrono::system_clock::now();
             Board* board=game->game_get_board();
             board->tile_step(num);
-//            game->(*board)->tile_step(num);
             auto tile_end = std::chrono::system_clock::now();
-
             tile_record record;
             record.thread_id=this->m_thread_id;
             record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
 
             //critical code
-            pthread_mutex_lock(&mutex);
+            pthread_mutex_lock(&game->thread_lock);
             auto hist=game->tile_hist();
             hist.push_back(record);
             board->task_done();                                         //updates counter of finished tasks
-//            (*board)->task_done();
-            if (board->get_tasks_done() == board->get_tiles_num())  	//gen finished, all tiles calculated
-                board->sem_up();
-//            if ((*board)->get_tasks_done() == (*board)->get_tiles_num())  	//gen finished, we poped all the tiles
-//                (*board)->sem_up();
-            pthread_mutex_unlock(&mutex);
+            pthread_cond_signal(&game->thread_cond);
+            pthread_mutex_unlock(&game->thread_lock);
             //end of critical code
         }
-        pthread_mutex_lock(&mutex);
-        Board* board=game->game_get_board();
-        board->sem_up();
-//        (*board)->sem_up();                 //needs to be under if...? ask nadav
-        pthread_mutex_unlock(&mutex);
-
-
     }
 };
 
@@ -77,7 +54,11 @@ Game::Game(game_params params){
 	this->tiles_q=new PCQueue<int>();
     m_tile_hist;
 
-	//TODO: need to initial 'm_gen_hist' & 'm_tile_hist'
+    pthread_mutexattr_t attribute;
+    pthread_mutexattr_init(&attribute);
+    pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&thread_lock, &attribute);
+    pthread_cond_init(&thread_cond, NULL);
 }
 
 Game::~Game(){}
@@ -118,8 +99,16 @@ void Game::_step(uint curr_gen) {
     for (int i = 0; i < game_board->get_tiles_num() ; i++) {
 		tiles_q->push(i);
     }
-    game_board->sem_down();			    //waits for end of generation - all tasks need to finish
+
+    //critical code
+    pthread_mutex_lock(&thread_lock);
+    while(game_board->get_tasks_done()!= game_board->get_tiles_num()){
+        pthread_cond_wait(&thread_cond, &thread_lock);
+    }
     game_board->reset_tasks_done();		//resets tasks finished counter for next generation
+    pthread_mutex_unlock(&thread_lock);
+    //end of critical code
+
     game_board->swap_boards();
 }
 
@@ -130,7 +119,6 @@ void Game::_destroy_game(){
 	for (int j = 0; j < m_thread_num; ++j) {
 		tiles_q->push(POISON);
 	}
-	game_board->sem_down();			    //waits for all the threads to exit
 	game_board->reset_tasks_done();		//resets tasks finished counter for next generation
 
 	for (uint i = 0; i < m_thread_num; ++i)

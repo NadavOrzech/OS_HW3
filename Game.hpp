@@ -37,6 +37,9 @@ public:
 	Board* game_get_board();
 	PCQueue<int>* game_get_queue();
 
+    pthread_mutex_t thread_lock;
+    pthread_cond_t thread_cond;
+
 protected: // All members here are protected, instead of private for testing purposes
 
 	// See Game.cpp for details on these three functions

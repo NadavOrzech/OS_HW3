@@ -6,12 +6,20 @@
 
 Semaphore::Semaphore() : semaphorMax(0), counter(0){
     pthread_cond_init(&cond, nullptr);
-    pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
+
+    pthread_mutexattr_t attribute;
+    pthread_mutexattr_init(&attribute);
+    pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&mutex, &attribute);          // NEED TO CHECK what attribute to add
 }
 
 Semaphore::Semaphore(unsigned val) : semaphorMax(val), counter(val){
     pthread_cond_init(&cond, nullptr);
-    pthread_mutex_init(&mutex, nullptr);          // NEED TO CHECK what attribute to add
+
+    pthread_mutexattr_t attribute;
+    pthread_mutexattr_init(&attribute);
+    pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
+    pthread_mutex_init(&mutex, &attribute);          // NEED TO CHECK what attribute to add
 }
 
 Semaphore::~Semaphore() {

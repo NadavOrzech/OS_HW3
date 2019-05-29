@@ -131,12 +131,4 @@ int Board::get_tasks_done(){
     return this->tasks_done;
 }
 
-void Board::sem_up(){
-    this->gen_done.up();
-}
-
-void Board::sem_down(){
-    this->gen_done.down();
-}
-
 

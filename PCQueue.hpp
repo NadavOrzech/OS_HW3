@@ -19,8 +19,11 @@ private:
 public:
 	PCQueue(){
         queue=new std::queue<T>();
-        pthread_mutex_init(&cond_mutex, nullptr);
-        pthread_mutex_init(&mutex, nullptr);
+        pthread_mutexattr_t attribute;
+        pthread_mutexattr_init(&attribute);
+        pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
+        pthread_mutex_init(&cond_mutex, &attribute);
+        pthread_mutex_init(&mutex, &attribute);
         pthread_cond_init(&cond, NULL);
         this->size=new Semaphore();
 
@@ -91,10 +94,10 @@ public:
         pthread_mutex_unlock(&cond_mutex);
     }
 
-    void signal_cond_thread(){
-        pthread_cond_signal(&cond);
-
-    }
+//    void signal_cond_thread(){
+//        pthread_cond_signal(&cond);
+//
+//    }
 
 
 };
