@@ -20,19 +20,23 @@ public:
         while(num!=POISON) {
             num=game->game_get_queue()->pop();
             if (num == POISON) break;
+            Board* board=game->game_get_board();
 
             auto tile_start = std::chrono::system_clock::now();
-            Board* board=game->game_get_board();
             board->tile_step(num);
             auto tile_end = std::chrono::system_clock::now();
+
             tile_record record;
             record.thread_id=this->m_thread_id;
             record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
+            game->tile_hist().at(game->get_curr_gen()*game->thread_num() + thread_id())= record; // put out of lock
 
             //critical code
             pthread_mutex_lock(&game->thread_lock);
-            auto hist=game->tile_hist();
-            hist.push_back(record);
+
+//            vector<tile_record> hist=game->tile_hist();
+//            hist.push_back(record);
+
             board->task_done();                                         //updates counter of finished tasks
             pthread_cond_signal(&game->thread_cond);
             pthread_mutex_unlock(&game->thread_lock);
@@ -52,13 +56,15 @@ Game::Game(game_params params){
 
 	this->game_board = new Board(params.filename, this->m_thread_num);
 	this->tiles_q=new PCQueue<int>();
-    m_tile_hist;
+//    m_tile_hist=vector<tile_record>();
 
     pthread_mutexattr_t attribute;
     pthread_mutexattr_init(&attribute);
     pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
     pthread_mutex_init(&thread_lock, &attribute);
     pthread_cond_init(&thread_cond, NULL);
+
+    m_tile_hist.resize(m_thread_num*m_gen_num);
 }
 
 Game::~Game(){}
@@ -84,7 +90,7 @@ void Game::_init_game() {
 	// Create & Start threads
 	// Testing of your implementation will presume all threads are started here
 
-	for (int i = 0; i < this->m_thread_num; i++) {
+	for (uint i = 0; i < this->m_thread_num; i++) {
 		this->m_threadpool.push_back((Thread*)(new GOL_thread(i, this)));
 		this->m_threadpool.back()->start();
 	}
@@ -95,7 +101,7 @@ void Game::_step(uint curr_gen) {
 	// Wait for the workers to finish calculating 
 	// Swap pointers between current and next field 
 	// NOTE: Threads must not be started here - doing so will lead to a heavy penalty in your grade
-
+    this->curr_gen=curr_gen;
     for (int i = 0; i < game_board->get_tiles_num() ; i++) {
 		tiles_q->push(i);
     }
@@ -139,8 +145,16 @@ const vector<tile_record> Game::tile_hist() const {
     return this->m_tile_hist;
 }
 
+vector<tile_record> Game::tile_hist() {
+    return this->m_tile_hist;
+}
+
 uint Game::thread_num() const{
     return this->m_thread_num;
+}
+
+uint Game::get_curr_gen(){
+    return this->curr_gen;
 }
 
 Board* Game::game_get_board(){
@@ -149,7 +163,7 @@ Board* Game::game_get_board(){
 
 PCQueue<int>* Game::game_get_queue(){
         return this->tiles_q;
-};
+}
 
 /*--------------------------------------------------------------------------------
 								

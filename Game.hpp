@@ -31,9 +31,10 @@ public:
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram  
 	const vector<tile_record> tile_hist() const; // Returns the tile timing histogram
+    vector<tile_record> tile_hist();
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
 
-
+    uint get_curr_gen();
 	Board* game_get_board();
 	PCQueue<int>* game_get_queue();
 
@@ -56,6 +57,7 @@ protected: // All members here are protected, instead of private for testing pur
 	vector<double> m_gen_hist;  	 	// Timing history for generations: x=m_gen_hist[t] iff generation t was calculated in x microseconds
 	vector<Thread*> m_threadpool; 		// A storage container for your threads. This acts as the threadpool.
 
+    uint curr_gen;
 	bool interactive_on; // Controls interactive mode - that means, prints the board as an animation instead of a simple dump to STDOUT 
 	bool print_on; // Allows the printing of the board. Turn this off when you are checking performance (Dry 3, last question)
 
