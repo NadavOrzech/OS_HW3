@@ -26,17 +26,13 @@ public:
             board->tile_step(num);
             auto tile_end = std::chrono::system_clock::now();
 
-            tile_record record;
-            record.thread_id=this->m_thread_id;
-            record.tile_compute_time=(double)std::chrono::duration_cast<std::chrono::microseconds>(tile_end - tile_start).count();
-            game->tile_hist().at(game->get_curr_gen()*game->thread_num() + thread_id())= record; // put out of lock
+            struct tile_record record={(double)std::chrono::duration_cast<std::chrono::microseconds>
+                    (tile_end - tile_start).count(), this->m_thread_id};
+
+            *(game->tile_hist(game->get_curr_gen()*game->thread_num() + thread_id()))= record;
 
             //critical code
             pthread_mutex_lock(&game->thread_lock);
-
-//            vector<tile_record> hist=game->tile_hist();
-//            hist.push_back(record);
-
             board->task_done();                                         //updates counter of finished tasks
             pthread_cond_signal(&game->thread_cond);
             pthread_mutex_unlock(&game->thread_lock);
@@ -145,8 +141,8 @@ const vector<tile_record> Game::tile_hist() const {
     return this->m_tile_hist;
 }
 
-vector<tile_record> Game::tile_hist() {
-    return this->m_tile_hist;
+tile_record* Game::tile_hist(int index) {
+    return &this->m_tile_hist.at(index);
 }
 
 uint Game::thread_num() const{

@@ -31,7 +31,7 @@ public:
 	void run(); // Runs the game
 	const vector<double> gen_hist() const; // Returns the generation timing histogram  
 	const vector<tile_record> tile_hist() const; // Returns the tile timing histogram
-    vector<tile_record> tile_hist();
+    tile_record* tile_hist(int index);
 	uint thread_num() const; //Returns the effective number of running threads = min(thread_num, field_height)
 
     uint get_curr_gen();
