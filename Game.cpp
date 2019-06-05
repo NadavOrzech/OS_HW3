@@ -1,5 +1,5 @@
-#include "Game.hpp"
 
+#include "Game.hpp"
 
 #define POISON -1
 
@@ -18,25 +18,27 @@ public:
     void thread_workload() override {
         int num=INIT;
         while(num!=POISON) {
-            num=game->game_get_queue()->pop();
-            if (num == POISON) break;
+            num=game->game_get_queue()->pop();          //computing the next tasks
+            if (num == POISON) break;                   //inserting POISON tasks to kill the threads
             Board* board=game->game_get_board();
 
-            auto tile_start = std::chrono::system_clock::now();
+            auto tile_start = std::chrono::system_clock::now();     //saving the time before the step
             board->tile_step(num);
-            auto tile_end = std::chrono::system_clock::now();
+            auto tile_end = std::chrono::system_clock::now();       //saving the time after the step
 
             struct tile_record record={(double)std::chrono::duration_cast<std::chrono::microseconds>
                     (tile_end - tile_start).count(), this->m_thread_id};
 
             *(game->tile_hist(game->get_curr_gen()*game->thread_num() + thread_id()))= record;
 
-            //critical code
+    //----------Start of critical code---------------
+
             pthread_mutex_lock(&game->thread_lock);
             board->task_done();                                         //updates counter of finished tasks
             pthread_cond_signal(&game->thread_cond);
             pthread_mutex_unlock(&game->thread_lock);
-            //end of critical code
+
+     //-----------End of critical code---------------
         }
     }
 };
@@ -45,6 +47,7 @@ public:
 								Game Struct
 --------------------------------------------------------------------------------*/
 Game::Game(game_params params){
+//Initializing game fields according to given params
     this->m_gen_num=params.n_gen;
     this->m_thread_num=params.n_thread;
     this->interactive_on=params.interactive_on;
@@ -52,7 +55,6 @@ Game::Game(game_params params){
 
 	this->game_board = new Board(params.filename, this->m_thread_num);
 	this->tiles_q=new PCQueue<int>();
-//    m_tile_hist=vector<tile_record>();
 
     pthread_mutexattr_t attribute;
     pthread_mutexattr_init(&attribute);
@@ -70,9 +72,9 @@ void Game::run() {
 	_init_game(); // Starts the threads and all other variables you need
 	print_board("Initial Board");
 	for (uint i = 0; i < m_gen_num; ++i) {
-		auto gen_start = std::chrono::system_clock::now();
+		auto gen_start = std::chrono::system_clock::now();          //saving the time before the generation
 		_step(i); // Iterates a single generation 
-		auto gen_end = std::chrono::system_clock::now();
+		auto gen_end = std::chrono::system_clock::now();            //saving the time after the generation
 		m_gen_hist.push_back((double)std::chrono::duration_cast<std::chrono::microseconds>(gen_end - gen_start).count());
 		print_board(nullptr);
 	} // generation loop
@@ -102,14 +104,14 @@ void Game::_step(uint curr_gen) {
 		tiles_q->push(i);
     }
 
-    //critical code
+    //----------Start of critical code---------------
     pthread_mutex_lock(&thread_lock);
     while(game_board->get_tasks_done()!= game_board->get_tiles_num()){
         pthread_cond_wait(&thread_cond, &thread_lock);
     }
     game_board->reset_tasks_done();		//resets tasks finished counter for next generation
     pthread_mutex_unlock(&thread_lock);
-    //end of critical code
+    //----------End of critical code---------------
 
     game_board->swap_boards();
 }
@@ -119,7 +121,7 @@ void Game::_destroy_game(){
 	// Not implemented in the Game's destructor for testing purposes. 
 	// All threads must be joined here
 	for (int j = 0; j < m_thread_num; ++j) {
-		tiles_q->push(POISON);
+		tiles_q->push(POISON);          //Inserting POISON TASKS to kill the threads on the next generation
 	}
 	game_board->reset_tasks_done();		//resets tasks finished counter for next generation
 
@@ -158,19 +160,19 @@ Board* Game::game_get_board(){
 }
 
 PCQueue<int>* Game::game_get_queue(){
-        return this->tiles_q;
+    return this->tiles_q;
 }
 
 /*--------------------------------------------------------------------------------
-								
+                        Printing function
 --------------------------------------------------------------------------------*/
 inline void Game::print_board(const char* header) {
 
 	if(print_on){
 
 		// Clear the screen, to create a running animation
-//		if(interactive_on)
-//			system("clear");
+		if(interactive_on)
+			system("clear");
 
 		// Print small header if needed
 		if (header != nullptr)
@@ -184,34 +186,3 @@ inline void Game::print_board(const char* header) {
 	}
 
 }
-
-
-//void Game::print_board_for_test(){
-//	cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
-//	for (uint i = 0; i < this->game_board->get_heigth(); ++i) {
-//		cout << u8"║";
-//		for (uint j = 0; j < this->game_board->get_width() ; ++j) {
-//			cout << (this->game_board[i][j] ? u8"█" : u8"░");
-//		}
-//		cout << u8"║" << endl;
-//	}
-//	cout << u8"╚" << string(u8"═") * field_width << u8"╝" << endl;
-//}
-
-/*
- Function sketch to use for printing the board. You will need to decide its placement and how exactly
-	to bring in the field's parameters.
-
-		cout << u8"╔" << string(u8"═") * field_width << u8"╗" << endl;
-		for (uint i = 0; i < field_height ++i) {
-			cout << u8"║";
-			for (uint j = 0; j < field_width; ++j) {
-				cout << (field[i][j] ? u8"█" : u8"░");
-			}
-			cout << u8"║" << endl;
-		}
-		cout << u8"╚" << string(u8"═") * field_width << u8"╝" << endl;
-*/
-
-
-

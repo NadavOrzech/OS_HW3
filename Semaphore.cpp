@@ -1,6 +1,5 @@
 
 #include "Semaphore.hpp"
-//#include <windows.h>
 
 #define LOCKED 0
 
@@ -10,7 +9,7 @@ Semaphore::Semaphore() : semaphorMax(0), counter(0){
     pthread_mutexattr_t attribute;
     pthread_mutexattr_init(&attribute);
     pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&mutex, &attribute);          // NEED TO CHECK what attribute to add
+    pthread_mutex_init(&mutex, &attribute);
 }
 
 Semaphore::Semaphore(unsigned val) : semaphorMax(val), counter(val){
@@ -19,7 +18,7 @@ Semaphore::Semaphore(unsigned val) : semaphorMax(val), counter(val){
     pthread_mutexattr_t attribute;
     pthread_mutexattr_init(&attribute);
     pthread_mutexattr_settype(&attribute, PTHREAD_MUTEX_ERRORCHECK);
-    pthread_mutex_init(&mutex, &attribute);          // NEED TO CHECK what attribute to add
+    pthread_mutex_init(&mutex, &attribute);
 }
 
 Semaphore::~Semaphore() {
@@ -33,8 +32,6 @@ void Semaphore::up(){
 
     pthread_cond_signal(&cond);
     pthread_mutex_unlock(&mutex);
-
-
 }
 
 void Semaphore::down() {

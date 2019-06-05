@@ -1,6 +1,3 @@
-//
-// Created by Dell on 5/21/2019.
-//
 
 #include "Board.hpp"
 
@@ -21,7 +18,6 @@ Board::Board(const string& s, int tile_num): tiles_num(tile_num) {
         }
         current->push_back(bool_row);
         next->push_back(bool_row_next);
-
     }
 
     this->width=tmp.size();
@@ -69,13 +65,11 @@ int Board::live_neighbors(int row, int col){
     }
 
     return count;
-
 }
 
 void Board::tile_step(int tile_num) {
     //applies one step of the rules for the given tile
     //updates the "next" board according to the games rules
-
 
     int start_line=this->get_start_line(tile_num);
     int end_line=this->get_end_line(tile_num);
@@ -87,10 +81,8 @@ void Board::tile_step(int tile_num) {
 
             if(current->at(i).at(j)==DEAD_CELL && live_neighbors==3)
                 next->at(i).at(j)=LIVE_CELL;
-
             else if(current->at(i).at(j)==LIVE_CELL && (live_neighbors>3 || live_neighbors<2))
                 next->at(i).at(j)=DEAD_CELL;
-
             else
                 next->at(i).at(j)=current->at(i).at(j);
         }

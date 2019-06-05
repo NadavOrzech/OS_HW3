@@ -1,9 +1,9 @@
 #ifndef __GAMERUN_H
 #define __GAMERUN_H
-//#include "Headers.hpp"
+
 #include "Thread.hpp"
-//#include "Board.hpp"
-#include "PCQueue.hpp"
+#include "part1/PCQueue.hpp"
+
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
 --------------------------------------------------------------------------------*/
@@ -16,10 +16,6 @@ struct game_params {
 	bool print_on; 
 };
 
-//struct tile_record {
-//	double tile_compute_time; // Compute time for the tile
-//	uint thread_id; // The thread responsible for the compute
-//};
 /*--------------------------------------------------------------------------------
 									Class Declaration
 --------------------------------------------------------------------------------*/
@@ -49,7 +45,6 @@ protected: // All members here are protected, instead of private for testing pur
 	void _destroy_game(); 
 	inline void print_board(const char* header);
 
-
 	uint m_gen_num; 			 		// The number of generations to run
 	uint m_thread_num; 			 		// Effective number of threads = min(thread_num, field_height)
 	vector<tile_record> m_tile_hist; 	// Shared Timing history for tiles: First m_thread_num cells are the calculation durations for tiles in generation 1 and so on. 
@@ -63,10 +58,6 @@ protected: // All members here are protected, instead of private for testing pur
 
 	Board *game_board;                  //The board of the game
     PCQueue<int> *tiles_q;              //Queue of tiles numbers, each tile is calculated as n separate task
-
-
-
-	// TODO: Add in your variables and synchronization primitives
 
 };
 

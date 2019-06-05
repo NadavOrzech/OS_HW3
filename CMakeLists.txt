@@ -4,9 +4,10 @@ project(HW3)
 set(CMAKE_CXX_STANDARD 11)
 
 
-add_compile_options(-g -O3 -Wall -static-libstdc++)
+add_compile_options(-g -O3 -static-libstdc++)
 
-add_executable(HW3 main.cpp
+add_executable(GameOfLife
+        main.cpp
         Headers.hpp
         utils.hpp utils.cpp
         Thread.hpp
