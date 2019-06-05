@@ -2,7 +2,7 @@
 #define __GAMERUN_H
 
 #include "Thread.hpp"
-#include "part1/PCQueue.hpp"
+#include "PCQueue.hpp"
 
 /*--------------------------------------------------------------------------------
 								  Auxiliary Structures
